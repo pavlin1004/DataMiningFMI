@@ -2,6 +2,7 @@
 {
     internal class Program
     {
+        #pragma warning disable CS8602 
         public class Node
         {
             public int[,] currentState;
@@ -63,6 +64,7 @@
         {
             for (int i = 0; i < size; i++)
             {
+
 
                 string Input = Console.ReadLine().ToString();
                 int[] row = Input.Split(' ').Select(int.Parse).ToArray();
