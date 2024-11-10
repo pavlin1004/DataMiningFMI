@@ -5,129 +5,106 @@ using static NQueens.Program;
 
 namespace NQueens
 {
-    //UP TO 10 000 QUEENS
+    
     internal class Program
     {
-        public class Queen 
-        {
-            public ushort x, y;
-            public Queen(ushort x, ushort y)
-            {
-                this.x = x; 
-                this.y = y;
-            }
-
-        }
-
         public class Conflicts
         {
-            public ushort[] 
+            public int[] 
                 rowConflicts,
                 mainDiagonalConflicts,
                 antiDiagonalConflicts;
-            public Conflicts(ushort n)
+
+            public Conflicts(int n)
             {
-                rowConflicts = new ushort[n];
-                mainDiagonalConflicts = new ushort[2 * n - 1];
-                antiDiagonalConflicts = new ushort[2 * n - 1];
+                rowConflicts = new int[n];
+                mainDiagonalConflicts = new int[2 * n - 1];
+                antiDiagonalConflicts = new int[2 * n - 1];
             }
 
-            public void Add(ushort x, ushort y,ushort n)
+            public void Add(int x, int y, int n)
             {
                 rowConflicts[x]++;
                 mainDiagonalConflicts[x + y]++;
                 antiDiagonalConflicts[x - y + (n-1)]++;
             }
 
-            public void Remove(ushort x, ushort y,ushort n)
+            public void Remove(int x, int y, int n)
             {
                 rowConflicts[x]--;
                 mainDiagonalConflicts[x + y]--;
                 antiDiagonalConflicts[x - y + (n - 1)]--;
             }
 
-            public ushort GetAllConflicts(ushort x, ushort y, ushort n)
+            public int GetAllConflicts(int x, int y, int n)
             {
-                return (ushort)(rowConflicts[x] + mainDiagonalConflicts[x+y] + antiDiagonalConflicts[x-y+(n-1)]);
+                return rowConflicts[x] + mainDiagonalConflicts[x+y] + antiDiagonalConflicts[x-y+(n-1)];
             }  
-            public ushort GetAllConflictsForAQueen(ushort x, ushort y, ushort n)
+            public int GetAllConflictsForAQueen(int x, int y, int n)
             {
-                return (ushort)(GetAllConflicts(x, y, n) - 3);
+                return GetAllConflicts(x, y, n) - 3;
             }
         }
         public class Solver
         {
-            public ushort n;
-            public Dictionary<Queen, ushort> queens;
+            public int n;
+            public int[] queens;
             public Conflicts conflicts;
-            public Solver(ushort n)
+            Random rand;
+            public Solver(int n)
             {
                 this.n = n;
-                queens = new Dictionary<Queen, ushort>();
+                queens = new int[n]; // queen[0] = 1 => col-0, row-1
                 conflicts = new Conflicts(n);
-
+                rand = new Random();
             }
-            private Dictionary<Queen, ushort> GenerateQueens()
-            {
-                Dictionary<Queen, ushort> initial = new Dictionary<Queen, ushort>();
-                conflicts = new Conflicts(n);
-                Random rand = new Random();
 
-                for (ushort col = 0; col < n; col++)
+            public string QueensToString()
+            {
+                return string.Join(',',queens);
+            }
+            private void GenerateQueens()
+            {
+                conflicts = new Conflicts(n);
+                for (int i=0;i<n;i++)
                 {
-                    ushort row = (ushort)rand.Next(0, n);
-                    initial[new Queen(row, col)] = 0; ;
-                    conflicts.Add(row, col, n);
-                }
-                return initial;
+                    int row = rand.Next(0,n);
+                    queens[i] = row;
+                    conflicts.Add(queens[i], i, n);
+                } 
             }
 
-            private Queen GetQueenWithMostConflicts()
-            {
-               ushort mostConflicts = 0;
-               Queen mostConflictsQueen = queens.First().Key;
-               foreach(var q in queens)
-               {
-                    ushort currentConflicts = CalculateConflictsForQueen(q.Key);
-                    if(mostConflicts < currentConflicts)
-                    {
-                        mostConflicts = currentConflicts;
-                        mostConflictsQueen = q.Key;
-                    }
-               }
-               return mostConflictsQueen;
-            }
             private bool HasConflicts()
             {
                 int conflictsCount = 0;
-                foreach(var q in queens)
+                for( int i = 0;i < n;i++)
                 {
-                    conflictsCount += conflicts.GetAllConflictsForAQueen(q.Key.x, q.Key.y, n);
+                    conflictsCount += conflicts.GetAllConflictsForAQueen(queens[i],i,n);
                 }
                 return conflictsCount != 0;
             }
-            private ushort CalculateConflictsForQueen(Queen queen)
+            private int GetRowWithLessConflicts(int x, int y)
             {
-                return conflicts.GetAllConflictsForAQueen(queen.x, queen.y, n);
-            }
-            private void GoToRowWithLessConflicts(Queen queen)
-            {
-                ushort rowConflicts = 10001;
-                ushort rowNumber = 10001;
-                for (ushort i = 0; i < n; i++)
+                int rowConflicts = 10001;
+                int rowNumber = 10001;
+                for (int i = 0; i < n; i++)
                 {
-                    ushort conflictsForCell = conflicts.GetAllConflicts(i, queen.y, n);
-                    if (rowConflicts > conflictsForCell) 
+                    int conflictsForCell = conflicts.GetAllConflicts(i, y , n);
+                    if (rowConflicts > conflictsForCell)
                     {
                         rowConflicts = conflictsForCell;
                         rowNumber = i;
                     }
                 }
-                conflicts.Remove(queen.x, queen.y, n);
-                queen.x = rowNumber;
-                conflicts.Add(queen.x, queen.y, n);
+                return rowNumber;
             }
-            
+            private void GoToRowWithLessConflicts(int x, int y)
+            {
+                conflicts.Remove(x, y, n);
+                int rowNumber = GetRowWithLessConflicts(x, y);
+                queens[y] = rowNumber;
+                conflicts.Add(queens[y], y, n);               
+            }
             public void Print()
             {
                 
@@ -139,9 +116,9 @@ namespace NQueens
                         board[i, j] = '.';
                     }
                 }
-                foreach (var queen in queens)
+                for(int i=0;i<n;i++)
                 {
-                    board[queen.Key.x, queen.Key.y] = 'Q';
+                    board[queens[i], i] = 'Q';
                 }
                 for (int i = 0; i < n; i++)
                 {
@@ -153,36 +130,44 @@ namespace NQueens
                 }
                 
             }
-            public void Solve()
+            public void printArray()
             {
-                this.queens = GenerateQueens();
-                Console.WriteLine("k");
-                int iter = 0, k=5;
+                Console.WriteLine(String.Join(',',queens));
+            }
+            public bool Solve()
+            {
+                GenerateQueens();
+                int iter = 0,k = 1+2*n/100;
                 while(iter++ <= n*k)
                 {
-                        GoToRowWithLessConflicts(GetQueenWithMostConflicts());
+                    int column = rand.Next(0, n);
+                    GoToRowWithLessConflicts(queens[column],column);
                 }
-                if(HasConflicts())
-                {
-                    Solve();
-                }
+                return HasConflicts();
             }
         }
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
-            ushort n = Convert.ToUInt16(Console.ReadLine());
+            int n = Convert.ToInt32(Console.ReadLine());
+            if (n < 0 || n == 3 || n > 10000) return -1;
             Stopwatch stopwatch = new Stopwatch();
             Solver solver = new Solver(n);        
             stopwatch.Start();
+            while(solver.Solve())
             solver.Solve();           
-            stopwatch.Stop(); // Stop the timer      
-            Console.WriteLine($"{stopwatch.Elapsed.TotalSeconds:F2}"); // Print elapsed time in seconds
+            stopwatch.Stop(); // Stop the timer
+            if (n >= 100)
+            {
+                Console.WriteLine($"{stopwatch.Elapsed.TotalSeconds:F2}"); // Print elapsed time in seconds
+            }
+            else
+            {
+                solver.printArray();
+            }
+            return 0;
+            //solver.Print();
+            
 
-            Console.WriteLine("Solution!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            solver.Print();
-            Console.WriteLine();
         }
     }
-
-    
 }
