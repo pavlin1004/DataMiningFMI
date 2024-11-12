@@ -73,7 +73,26 @@ namespace NQueens
                     conflicts.Add(queens[i], i, n);
                 } 
             }
-
+            private int GetRandomQueenWithMostConflicts()
+            {
+                List<int> mostConflcitedQueens = new List<int>();
+                int mostConflicts = 0;
+                for (int i = 0; i < n; i++)
+                {
+                    int current = conflicts.GetAllConflicts(queens[i], i, n);
+                    if (current > mostConflicts)
+                    {
+                        mostConflcitedQueens.Clear();
+                        mostConflicts = current;
+                        mostConflcitedQueens.Add(i);
+                    }
+                    else if (current == mostConflicts)
+                    {
+                        mostConflcitedQueens.Add(i);
+                    }
+                }
+                return mostConflcitedQueens[rand.Next(mostConflcitedQueens.Count)];
+            }
             private bool HasConflicts()
             {
                 int conflictsCount = 0;
@@ -85,18 +104,23 @@ namespace NQueens
             }
             private int GetRowWithLessConflicts(int x, int y)
             {
+                List<int> rows = new List<int>();
                 int rowConflicts = 10001;
-                int rowNumber = 10001;
                 for (int i = 0; i < n; i++)
                 {
                     int conflictsForCell = conflicts.GetAllConflicts(i, y , n);
                     if (rowConflicts > conflictsForCell)
                     {
+                        rows.Clear();
                         rowConflicts = conflictsForCell;
-                        rowNumber = i;
+                        rows.Add(i);
+                    }
+                    if(rowConflicts == conflictsForCell)
+                    {
+                        rows.Add(i);
                     }
                 }
-                return rowNumber;
+                return rows[rand.Next(rows.Count)];
             }
             private void GoToRowWithLessConflicts(int x, int y)
             {
@@ -132,39 +156,45 @@ namespace NQueens
             }
             public void printArray()
             {
-                Console.WriteLine(String.Join(',',queens));
+                Console.Write('[');
+                Console.Write(String.Join(", ",queens));
+                Console.Write(']');
             }
             public bool Solve()
             {
                 GenerateQueens();
-                int iter = 0,k = 1+2*n/100;
+                int iter = 0, k = 2 + n / 100 * + n / 1000*10;
                 while(iter++ <= n*k)
                 {
-                    int column = rand.Next(0, n);
+                    if (!HasConflicts()) return true;
+                    int column = GetRandomQueenWithMostConflicts();
                     GoToRowWithLessConflicts(queens[column],column);
                 }
-                return HasConflicts();
+                return !HasConflicts();
             }
         }
-        static int Main(string[] args)
+        static void Main(string[] args)
         {
             int n = Convert.ToInt32(Console.ReadLine());
-            if (n < 0 || n == 3 || n > 10000) return -1;
+            if (n <= 0 || n==2 || n == 3 )
+            {
+                Console.WriteLine(-1);
+                return;
+            }
             Stopwatch stopwatch = new Stopwatch();
             Solver solver = new Solver(n);        
             stopwatch.Start();
-            while(solver.Solve())
-            solver.Solve();           
+            while(solver.Solve()!=true)  
             stopwatch.Stop(); // Stop the timer
-            if (n >= 100)
+            if (n > 100)
             {
-                Console.WriteLine($"{stopwatch.Elapsed.TotalSeconds:F2}"); // Print elapsed time in seconds
+                Console.WriteLine(stopwatch.Elapsed.TotalSeconds.ToString("F2", System.Globalization.CultureInfo.InvariantCulture));
+
             }
             else
             {
                 solver.printArray();
             }
-            return 0;
             //solver.Print();
             
 
