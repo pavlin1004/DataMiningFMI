@@ -10,8 +10,8 @@ namespace Knapsack
             public static int noBetterFitnessCount = 0;
             public int n;
             public int m;
-            public int populationCount = 100;
-            public double mutationRate = 0.05;
+            public int populationCount = 10000;
+            public double mutationRate = 0.5;
             int[] weights;
             int[] costs;
             List<bool[]> population;
@@ -41,12 +41,15 @@ namespace Knapsack
                 for (int i = 0; i < populationCount; i++)
                 {
                     var individual = new bool[n];
+                    var weight = 0;
                     for (int j = 0; j < n; j++)
                     {
-                        bool gene = random.NextDouble() <= 0.5;
+                        bool gene = random.NextDouble() <= 0.05;
                         individual[j] = gene;
+                        if (gene) weight += weights[j];
                     }
-                    population.Add(individual);
+                    //if(weight == 0 || weight > m) i--;
+                     population.Add(individual);
                 }
             }
 
@@ -93,6 +96,7 @@ namespace Knapsack
             private void GenerateNewPopulation()
             {
                 List<int> indexes = Enumerable.Range(0, populationCount).ToList();
+                List<bool[]> children = new List<bool[]>();
                 int[] fitnesses = GetFitness();
 
                 int[] cross = new int[2];
@@ -113,18 +117,18 @@ namespace Knapsack
                         chosen++;
                     }
 
-                    Crossover(population[cross[0]], population[cross[1]]);
+                    Crossover(population[cross[0]], population[cross[1]],children);
                 }
-                Mutate();
+                Mutate(children);
 
                 population = resultPopulation;
                 resultPopulation = new List<bool[]>(populationCount);
             }
 
-            private void Crossover(bool[] first, bool[] second)
+            private void Crossover(bool[] first, bool[] second, List<bool[]> children)
             {
-                int crossPoint1 = n / 3;
-                int crossPoint2 = n - n / 3;
+                int crossPoint1 = random.Next(n/2);
+                int crossPoint2 = random.Next(n / 2 + 1, n);
 
                 bool[] children1 = new bool[n];
                 bool[] children2 = new bool[n];
@@ -144,20 +148,24 @@ namespace Knapsack
                     children2[i] = second[i];
                 }
 
-                resultPopulation.Add(children1);
-                resultPopulation.Add(children2);
+                children.Add(children1);
+                children.Add(children2);
             }
 
-            private void Mutate()
+            private void Mutate(List<bool[]> children)
             {
-                for (int i = 0; i < populationCount; i++)
+                for (int i = 0; i < children.Count; i++)
                 {
                     bool toMutate = random.NextDouble() <= mutationRate;
                     if (toMutate)
                     {
                         int gene = random.Next(n);
-                        resultPopulation[i][gene] = !resultPopulation[i][gene];
+                        children[i][gene] = !children[i][gene];
                     }
+                }
+                for(int i=0;i<children.Count;i++)
+                {
+                    resultPopulation.Add(children[i]);
                 }
             }
 
@@ -177,37 +185,24 @@ namespace Knapsack
             }
             public void Print(List<int> maxFitnesses)
             {
-                // Make sure there are at least 8 items to sample
-                if (maxFitnesses.Count < 8)
+                int k = maxFitnesses.Count / 7; 
+                int[] idx = new int[]
                 {
-                    Console.WriteLine("Not enough data to select 8 items.");
-                    return;
-                }
-
-                int first = maxFitnesses.First();
-                int last = maxFitnesses.Last();
-
-                // Remove first and last elements from the list
-                maxFitnesses.RemoveAt(0);  // Remove the first element
-                maxFitnesses.RemoveAt(maxFitnesses.Count - 1);  // Remove the last element
-
-                // Shuffle the remaining list and pick 8 random items
-                var randomFitnesses = maxFitnesses.OrderBy(x => random.Next()).Take(8).ToList();
-
-
-                randomFitnesses.Sort();
-
-
-                Console.WriteLine(first);
-
-                foreach (var value in randomFitnesses)
+                    k * 1,  
+                    k * 2,  
+                    k * 3,  
+                    k * 4,  
+                    k * 5,  
+                    k * 6  
+                };
+                Console.WriteLine(maxFitnesses.First()); 
+                foreach (int index in idx)
                 {
-                    Console.WriteLine(value);
+                        Console.WriteLine(maxFitnesses[index]);
                 }
-
-
-                Console.WriteLine(last);
+                Console.WriteLine(maxFitnesses.Last());
             }
+        
 
             public void Solve()
             {
@@ -224,7 +219,7 @@ namespace Knapsack
                     if (currentFitness >= fitnesses[maxFitness])
                     {
                         noBetterFitnessCount++;
-                        if (noBetterFitnessCount == 10)
+                        if (noBetterFitnessCount ==  20)
                         {
 
                             break;
@@ -238,8 +233,8 @@ namespace Knapsack
                     //Console.WriteLine(noBetterFitnessCount);
                     GenerateNewPopulation();
                 }
-                Console.WriteLine(currentFitness);
-                //Print(maxFitnesses);
+                //Console.WriteLine(currentFitness);
+                Print(maxFitnesses);
             }
             static void Main(string[] args)
             {
