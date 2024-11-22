@@ -10,8 +10,8 @@ namespace Knapsack
             public static int noBetterFitnessCount = 0;
             public int n;
             public int m;
-            public int populationCount = 10000;
-            public double mutationRate = 0.5;
+            public int populationCount = 13000;
+            public double mutationRate = 0.4;
             int[] weights;
             int[] costs;
             List<bool[]> population;
@@ -44,7 +44,7 @@ namespace Knapsack
                     var weight = 0;
                     for (int j = 0; j < n; j++)
                     {
-                        bool gene = random.NextDouble() <= 0.05;
+                        bool gene = random.NextDouble() <= 0.07;
                         individual[j] = gene;
                         if (gene) weight += weights[j];
                     }
@@ -185,7 +185,7 @@ namespace Knapsack
             }
             public void Print(List<int> maxFitnesses)
             {
-                int k = maxFitnesses.Count / 7; 
+                int k = maxFitnesses.Count / 9; 
                 int[] idx = new int[]
                 {
                     k * 1,  
@@ -193,7 +193,9 @@ namespace Knapsack
                     k * 3,  
                     k * 4,  
                     k * 5,  
-                    k * 6  
+                    k * 6,
+                    k * 7,
+                    k * 8
                 };
                 Console.WriteLine(maxFitnesses.First()); 
                 foreach (int index in idx)
@@ -208,6 +210,7 @@ namespace Knapsack
             {
                 LoadData(n);
                 LoadPopulation();
+                Console.WriteLine();
                 List<int> maxFitnesses = new List<int>();
                 int currentFitness = 0;
                 while (true)
@@ -242,7 +245,11 @@ namespace Knapsack
                 int m = int.Parse(input[0]);
                 int n = int.Parse(input[1]);
                 Knapsack ks = new Knapsack(m, n);
+                Stopwatch stopwatch = new Stopwatch();               
+                stopwatch.Start();
                 ks.Solve();
+                stopwatch.Stop();
+                Console.WriteLine(stopwatch.Elapsed.TotalSeconds.ToString("F2", System.Globalization.CultureInfo.InvariantCulture));
             }
         }
     }
