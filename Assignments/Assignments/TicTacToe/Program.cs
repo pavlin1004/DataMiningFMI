@@ -40,8 +40,8 @@ namespace TicTacToe
             }
             private int GetState(int x, int y)
             {
-                if(isAIMaximising) return board[x][y] == 'O' ? 1 : -1;
-                return board[x][y] == 'X' ? 1 : -1;
+                if (board[x][y] == 'O') return isAIMaximising ? 1 : -1;
+                else return isAIMaximising ? -1 : 1;
 
             }
             public int GetResult()
@@ -101,7 +101,7 @@ namespace TicTacToe
                                 int current = MiniMax(alpha, beta, false);
                                 board[i][j] = ' ';
                                 alpha = Math.Max(alpha, current);
-                                if (bestResult < alpha)
+                                if (bestResult <= alpha)
                                 {
                                     bestResult = alpha;
                                 }
@@ -126,7 +126,7 @@ namespace TicTacToe
                                 int current = MiniMax(alpha, beta, true);
                                 board[i][j] = ' ';
                                 beta = Math.Min(beta, current);
-                                if (bestResult > beta)
+                                if (bestResult >= beta)
                                 {
                                     bestResult = beta;
                                 }
@@ -158,7 +158,7 @@ namespace TicTacToe
                                 board[i][j] = 'O';
                                 int current = MiniMax(int.MinValue, int.MaxValue, false);
                                 board[i][j] = ' ';
-                                if (current > bestResult)
+                                if (current >= bestResult)
                                 {
                                     bestResult = current;
                                     bestMove = (i, j);
@@ -180,7 +180,7 @@ namespace TicTacToe
                                 board[i][j] = 'O';
                                 int current = MiniMax(int.MinValue, int.MaxValue, true);
                                 board[i][j] = ' ';
-                                if (current < bestResult)
+                                if (current <= bestResult)
                                 {
                                     bestResult = current;
                                     bestMove = (i, j);
@@ -200,13 +200,13 @@ namespace TicTacToe
                     var input = Console.ReadLine().Split(' ').ToArray();
                     i = int.Parse(input[0]);
                     j = int.Parse(input[1]);
-                    if (board[i][j] != ' ')
+                    if (board[i-1][j-1] != ' ')
                     {
                         Console.WriteLine("Invalid move! Try again.");
                     }
                     else
                     {
-                        board[i][j] = 'X';
+                        board[i-1][j-1] = 'X';
                         break;
                     }
                 }
@@ -225,13 +225,28 @@ namespace TicTacToe
                     }
                     humanToPlay = !humanToPlay;
                     Print();
-                    int result = GetResult();   
-                    switch (result)
+                    int result = GetResult();
+                    if (isAIMaximising)
                     {
-                        case 1: Console.WriteLine("Human wins!"); break;
-                        case -1: Console.WriteLine("AI wins!"); break;
-                        case 0: Console.WriteLine("Draw!"); break;
-                        default: continue;
+                        switch (result)
+                        {
+
+                            case 1: Console.WriteLine("AI wins!"); break;
+                            case -1: Console.WriteLine("Human wins!"); break;
+                            case 0: Console.WriteLine("Draw!"); break;
+                            default: continue;
+                        }
+                    }
+                    else
+                    {
+                        switch (result)
+                        {
+
+                            case 1: Console.WriteLine("Human wins!"); break;
+                            case -1: Console.WriteLine("Ai wins!"); break;
+                            case 0: Console.WriteLine("Draw!"); break;
+                            default: continue;
+                        }
                     }
                     break;
                 }

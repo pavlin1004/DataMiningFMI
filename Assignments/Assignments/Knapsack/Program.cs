@@ -10,7 +10,7 @@ namespace Knapsack
             public static int noBetterFitnessCount = 0;
             public int n;
             public int m;
-            public int populationCount = 13000;
+            public int populationCount = 10000;
             public double mutationRate = 0.4;
             int[] weights;
             int[] costs;
@@ -44,7 +44,7 @@ namespace Knapsack
                     var weight = 0;
                     for (int j = 0; j < n; j++)
                     {
-                        bool gene = random.NextDouble() <= 0.07;
+                        bool gene = random.NextDouble() <= 0.05;
                         individual[j] = gene;
                         if (gene) weight += weights[j];
                     }
@@ -224,7 +224,6 @@ namespace Knapsack
                         noBetterFitnessCount++;
                         if (noBetterFitnessCount ==  20)
                         {
-
                             break;
                         }
                     }

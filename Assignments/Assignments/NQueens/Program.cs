@@ -61,16 +61,7 @@ namespace NQueens
             private void GenerateQueens()
             {
                 conflicts = new Conflicts(n);
-                var rows = new int[n];
-                for (int i = 0; i < n; i++)
-                {
-                    rows[i] = i;
-                }
-
-                for(int i=0;i<n;i++)
-                {
-                    int temp
-                }
+              
                 for (int i=0;i<n;i++)
                 {
                     int row = rand.Next(0,n);
@@ -134,31 +125,31 @@ namespace NQueens
                 queens[y] = rowNumber;
                 conflicts.Add(queens[y], y, n);               
             }
-            //public void Print()
-            //{
-                
-            //    char[,] board = new char[n, n];
-            //    for (int i = 0; i < n; i++)
-            //    {
-            //        for (int j = 0; j < n; j++)
-            //        {
-            //            board[i, j] = '.';
-            //        }
-            //    }
-            //    for(int i=0;i<n;i++)
-            //    {
-            //        board[queens[i], i] = 'Q';
-            //    }
-            //    for (int i = 0; i < n; i++)
-            //    {
-            //        for (int j = 0; j < n; j++)
-            //        {
-            //            Console.Write(board[i, j] + " ");
-            //        }
-            //        Console.WriteLine();
-            //    }
-                
-            //}
+            public void Print()
+            {
+
+                char[,] board = new char[n, n];
+                for (int i = 0; i < n; i++)
+                {
+                    for (int j = 0; j < n; j++)
+                    {
+                        board[i, j] = '.';
+                    }
+                }
+                for (int i = 0; i < n; i++)
+                {
+                    board[queens[i], i] = 'Q';
+                }
+                for (int i = 0; i < n; i++)
+                {
+                    for (int j = 0; j < n; j++)
+                    {
+                        Console.Write(board[i, j] + " ");
+                    }
+                    Console.WriteLine();
+                }
+
+            }
             public void printArray()
             {
                 Console.Write('[');
@@ -199,10 +190,9 @@ namespace NQueens
             else
             {
                 solver.printArray();
+                Console.WriteLine( );
+                solver.Print();
             }
-            //solver.Print();
-            
-
         }
     }
 }

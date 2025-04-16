@@ -1,4 +1,6 @@
-﻿namespace SlidingPuzzle
+﻿using System.Diagnostics;
+
+namespace SlidingPuzzle
 {
     internal class Program
     {
@@ -110,10 +112,7 @@
         }
         static int findZeroRow(List<int> initalList, List<int> targetList, int rowCount)
         {
-            int zeroInitialIndex = initalList.IndexOf(0);
-            int zeroTargetIndex = targetList.IndexOf(0);
-            if (zeroInitialIndex == -1 || zeroTargetIndex == -1) return -1;
-            return Math.Abs(zeroTargetIndex / rowCount - zeroInitialIndex / rowCount) + 1;
+            return initalList.IndexOf(0) / rowCount + 1;         
         }
         static bool isSolvable(int[,] initialState, int[,] target)
         {
@@ -148,7 +147,7 @@
                 int zeroRow = findZeroRow(initialList, targetList, rowCount);
                 if (zeroRow == -1) return false;
 
-                return zeroRow % 2 == 0 ? inversions % 2 == 1 : inversions % 2 == 0;
+                return (zeroRow + inversions) % 2 == 1 ? true : false;
             }
         }
 
@@ -305,10 +304,17 @@
             TargetState target = new TargetState(n, size, zeroPos);
 
             //Return -1 if not solvable
-            if (isSolvable(grid, target.targetState) == false)
-                return -1;
-
+            //if (isSolvable(grid, target.targetState) == false)
+            //    return -1;
+            Stopwatch stopwatch = new Stopwatch();
+          
+            stopwatch.Start();
+            
+            
             IDAStar(target, current);
+            stopwatch.Stop();
+            Console.WriteLine(stopwatch.Elapsed.TotalSeconds.ToString("F2", System.Globalization.CultureInfo.InvariantCulture));
+
 
             return 0;
         }
